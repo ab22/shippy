@@ -1,4 +1,4 @@
-module github.com/ab22/shippy-service-consignment
+module github.com/ab22/shippy
 
 go 1.13
 

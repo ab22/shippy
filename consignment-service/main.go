@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	// Import protobuf code
-	pb "github.com/ab22/shippy-service-consignment/proto/consignment"
+	pb "github.com/ab22/shippy/consignment-service/proto/consignment"
 	"google.golang.org/grpc"
 )
 

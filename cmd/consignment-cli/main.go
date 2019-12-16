@@ -47,7 +47,7 @@ func main() {
 		log.Fatalf("Could not parse file: %v", err)
 	}
 
-	log.Println("Executing creating consignment command...")
+	log.Println("Executing CreateConsignment command...")
 	r, err := client.CreateConsignment(context.Background(), consignment)
 
 	if err != nil {
@@ -55,4 +55,15 @@ func main() {
 	}
 
 	log.Println("Created consignment:", r.Created)
+	log.Println("Executing GetConsignments command...")
+	r, err = client.GetConsignments(context.Background(), &pb.GetRequest{})
+
+	if err != nil {
+		log.Fatalf("Could not get all consignments: %v", err)
+	}
+
+	log.Println("Consignments:")
+	for _, v := range r.Consigments {
+		log.Println(v)
+	}
 }

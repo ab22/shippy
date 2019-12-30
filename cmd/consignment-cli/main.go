@@ -6,9 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 
-	"google.golang.org/grpc"
-
 	pb "github.com/ab22/shippy/consignment-service/proto/consignment"
+	micro "github.com/micro/go-micro"
 )
 
 const (
@@ -31,16 +30,13 @@ func parseFile(file string) (*pb.Consignment, error) {
 }
 
 func main() {
-	log.Println("Dialing server...")
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
+	log.Println("Creating micro service...")
+	service := micro.NewService(micro.Name("shippy.consignment.cli"))
+	service.Init()
 
-	if err != nil {
-		log.Fatalf("Could not dial: %v", err)
-	}
+	client := pb.NewShippingServiceClient("shippy.consignment.service", service.Client())
 
 	log.Println("Parsing consignment information...")
-	defer conn.Close()
-	client := pb.NewShippingServiceClient(conn)
 	consignment, err := parseFile(consignmentFile)
 
 	if err != nil {

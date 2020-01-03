@@ -1,0 +1,25 @@
+version: '3.1'
+
+services:
+    shippy-consignment-cli:
+        build:
+            context: ./
+            dockerfile: ./cmd/consignment-cli/Dockerfile
+
+    shippy-consignment-service:
+        build:
+            context: ./
+            dockerfile: ./consignment-service/Dockerfile
+        ports:
+            - 50051:50051
+        environment:
+            MICRO_ADDRESS: ":50051"
+
+    shippy-vessel-service:
+        build:
+            context: ./
+            dockerfile: ./vessel-service/Dockerfile
+        ports:
+            - 50052:50051
+        environment:
+            MICRO_ADDRESS: ":50051"

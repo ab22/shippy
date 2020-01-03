@@ -59,6 +59,6 @@ func main() {
 
 	log.Println("Running server...")
 	if err := srv.Run(); err != nil {
-		log.Println("Error running server:", err)
+		log.Println("Error running microserver:", err)
 	}
 }

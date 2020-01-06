@@ -1,45 +1,43 @@
 package main
 
 import (
-	"context"
 	"log"
 
 	pb "github.com/ab22/shippy/consignment-service/proto/consignment"
-	"github.com/ab22/shippy/internal/db"
 	"github.com/ab22/shippy/internal/env"
 	vesselProto "github.com/ab22/shippy/vessel-service/proto/vessel"
 	"github.com/micro/go-micro"
 )
 
 const (
-	port             = ":50051"
-	defaultDatastore = "datastore:27017"
+	port              = ":50051"
+	defaultDatastore  = "datastore:27017"
+	defaultDbName     = "shippy"
+	defaultCollection = "consignments"
 )
 
 func main() {
+	log.Println("Starting server...")
+	log.Println("Creating repository...")
 	var (
-		uri              = env.LookupEnvOr("DB_HOST", defaultDatastore)
-		srv              = micro.NewService(micro.Name("shippy.consignment.service"))
-		vesselClient     = vesselProto.NewVesselServiceClient("shippy.vessel.service", srv.Client())
-		mongoClient, err = db.NewMongoClient(uri)
+		uri        = env.LookupEnvOr("DB_HOST", defaultDatastore)
+		dbName     = env.LookupEnvOr("DB_NAME", defaultDbName)
+		collection = env.LookupEnvOr("DB_COLLECTION", defaultCollection)
+		repo, err  = NewConsignmentRepository(uri, dbName, collection)
 	)
 
 	if err != nil {
-		log.Panic("Could not create mongo client:", err)
+		log.Panic("Failed to create repository:", err)
 	}
-	defer mongoClient.Disconnect(context.TODO())
+	defer repo.Close()
 
-	log.Println("Starting server...")
-	srv.Init()
-
-	log.Println("Creating repository...")
+	log.Println("Creating services...")
 	var (
-		consignmentCollection = mongoClient.Database("shippy").Collection("consignments")
-		repo                  = &MongoRepository{consignmentCollection}
-		h                     = &handler{repo, vesselClient}
+		srv          = micro.NewService(micro.Name("shippy.consignment.service"))
+		vesselClient = vesselProto.NewVesselServiceClient("shippy.vessel.service", srv.Client())
+		h            = &handler{repo, vesselClient}
 	)
-
-	log.Println("Registering handler...")
+	srv.Init()
 	pb.RegisterShippingServiceHandler(srv.Server(), h)
 
 	log.Println("Running service...")

@@ -1,48 +1,59 @@
 package main
 
 import (
-	"context"
+	"github.com/ab22/shippy/internal/db"
 
 	pb "github.com/ab22/shippy/consignment-service/proto/consignment"
-	"go.mongodb.org/mongo-driver/mongo"
+	mgo "gopkg.in/mgo.v2"
 )
 
 type repository interface {
 	Create(*pb.Consignment) error
 	GetAll() ([]*pb.Consignment, error)
+	Close()
 }
 
-// MongoRepository - Dummy MongoRepository, this simulates the user of a datastore of some
-// kind. We'll replace this with a real implementation later on.
-type MongoRepository struct {
-	collection *mongo.Collection
+// ConsignmentRepository -
+type ConsignmentRepository struct {
+	dbName         string
+	collectionName string
+	session        *mgo.Session
 }
 
-// Create a new confignment
-func (repo *MongoRepository) Create(consignment *pb.Consignment) error {
-	_, err := repo.collection.InsertOne(context.Background(), consignment)
-	return err
-}
-
-// GetAll consignments
-func (repo *MongoRepository) GetAll() ([]*pb.Consignment, error) {
-	var (
-		consignments []*pb.Consignment
-		consignment  *pb.Consignment
-		cur, err     = repo.collection.Find(context.Background(), nil, nil)
-	)
+// NewConsignmentRepository --
+func NewConsignmentRepository(uri, dbname, collection string) (*ConsignmentRepository, error) {
+	session, err := db.NewMongoClient(uri)
 
 	if err != nil {
 		return nil, err
 	}
 
-	for cur.Next(context.Background()) {
-		if err := cur.Decode(&consignment); err != nil {
-			return nil, err
-		}
+	return &ConsignmentRepository{
+		dbName:         dbname,
+		collectionName: collection,
+		session:        session,
+	}, nil
+}
 
-		consignments = append(consignments, consignment)
-	}
+func (repo *ConsignmentRepository) collection() *mgo.Collection {
+	return repo.session.DB(repo.dbName).C(repo.collectionName)
+}
 
-	return consignments, nil
+// Create a new consignment.
+func (repo *ConsignmentRepository) Create(consignment *pb.Consignment) error {
+	return repo.collection().Insert(consignment)
+}
+
+// GetAll consignments.
+func (repo *ConsignmentRepository) GetAll() ([]*pb.Consignment, error) {
+	var (
+		consignments []*pb.Consignment
+		err          = repo.collection().Find(nil).All(&consignments)
+	)
+	return consignments, err
+}
+
+// Close the database connection.
+func (repo *ConsignmentRepository) Close() {
+	repo.session.Close()
 }

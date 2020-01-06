@@ -1,16 +1,17 @@
 package db
 
 import (
-	"context"
-	"time"
-
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	mgo "gopkg.in/mgo.v2"
 )
 
 // NewMongoClient --
-func NewMongoClient(uri string) (*mongo.Client, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	return mongo.Connect(ctx, options.Client().ApplyURI(uri))
+func NewMongoClient(host string) (*mgo.Session, error) {
+	session, err := mgo.Dial(host)
+
+	if err != nil {
+		return nil, err
+	}
+
+	session.SetMode(mgo.Monotonic, true)
+	return session, nil
 }

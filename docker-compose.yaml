@@ -18,6 +18,8 @@ services:
             MICRO_ADDRESS: ":50051"
             MICRO_REGISTRY: "mdsn"
             DB_HOST: "datastore:27017"
+            DB_NAME: "shippy"
+            DB_COLLECTION: "consignments"
 
     vessel-service:
         build:
@@ -29,6 +31,8 @@ services:
             MICRO_ADDRESS: ":50051"
             MICRO_REGISTRY: "mdsn"
             DB_HOST: "datastore:27017"
+            DB_NAME: "shippy"
+            DB_COLLECTION: "vessels"
 
     user-service:
         build:

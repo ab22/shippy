@@ -27,7 +27,7 @@ func main() {
 	)
 
 	if err != nil {
-		log.Panic("Failed to create repository:", err)
+		log.Panicln("Failed to create repository:", err)
 	}
 	defer repo.Close()
 

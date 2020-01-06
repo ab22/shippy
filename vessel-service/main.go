@@ -50,7 +50,10 @@ func main() {
 			&pb.Vessel{Id: "vessel001", Name: "Boaty McBoatface", MaxWeight: 200000, Capacity: 500},
 		}
 		repo = &VesselRepository{vessels}
-		srv  = micro.NewService(micro.Name("shippy.vessel.service"))
+		srv  = micro.NewService(
+			micro.Name("shippy.vessel.service"),
+			micro.Versio("latest"),
+		)
 	)
 
 	log.Println("Starting Vessel service...")

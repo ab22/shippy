@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/ab22/shippy/internal/db"
 	pb "github.com/ab22/shippy/user-service/proto/user"
 	micro "github.com/micro/go-micro"
 )
@@ -10,7 +11,7 @@ import (
 func main() {
 	log.Println("Starting server...")
 	log.Println("Creating database connection...")
-	db, err := CreatePostgresConnection()
+	db, err := db.NewPostgresClient()
 
 	if err != nil {
 		log.Fatalln("Could not establish connection to postgres database:", err)

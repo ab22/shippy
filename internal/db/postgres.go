@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"fmt"
@@ -7,8 +7,9 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// CreatePostgresConnection establishes a new postgres gorm connection.
-func CreatePostgresConnection() (*gorm.DB, error) {
+// NewPostgresClient establishes a new postgres gorm connection. All database
+// variables are grabbed using os.Getenv.
+func NewPostgresClient() (*gorm.DB, error) {
 	var (
 		host     = os.Getenv("DB_HOST")
 		user     = os.Getenv("DB_USER")
